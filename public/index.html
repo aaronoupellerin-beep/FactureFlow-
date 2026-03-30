@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FactureFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <img class="brand-logo" src="./assets/factureflow-logo.svg" alt="Logo FactureFlow" />
+          <div>
+          <p class="eyebrow">MVP monetisable</p>
+          <h1>FactureFlow</h1>
+          <p class="muted">Creez des devis, factures et un mini suivi client dans une seule interface.</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button id="nav-documents" class="ghost-button">Documents</button>
+          <button id="nav-calculator" class="ghost-button">Calculateur</button>
+          <button id="new-document-button" class="primary-button">Nouveau document</button>
+          <button id="premium-button" class="ghost-button">Passer premium</button>
+        </div>
+      </header>
+
+      <main id="documents-page" class="documents-layout">
+        <section class="documents-top-with-sidebar">
+          <section class="documents-top">
+          <section id="editor-panel" class="panel form-panel">
+          <div class="section-title-row">
+            <h2>Editeur</h2>
+            <div class="history-actions">
+              <span id="free-remaining-badge" class="badge hidden">3 document(s) gratuit(s) restant(s)</span>
+              <span id="document-badge" class="badge">Devis</span>
+            </div>
+          </div>
+
+          <div id="editor-lock" class="locked-box hidden">
+            Votre offre gratuite est terminee. Passez au premium pour creer d'autres documents.
+          </div>
+
+          <div class="two-cols">
+            <label>
+              Type
+              <select id="type">
+                <option value="quote">Devis</option>
+                <option value="invoice">Facture</option>
+              </select>
+            </label>
+            <label>
+              Numero
+              <input id="number" placeholder="Auto" />
+            </label>
+          </div>
+
+          <div class="two-cols">
+            <label>
+              Date d'emission
+              <input id="issueDate" type="date" />
+            </label>
+            <label>
+              Date d'echeance
+              <input id="dueDate" type="date" />
+            </label>
+          </div>
+
+          <div class="two-cols">
+            <label>
+              Statut
+              <select id="status">
+                <option value="draft">Brouillon</option>
+                <option value="issued">Envoye</option>
+                <option value="paid">Paye</option>
+              </select>
+            </label>
+            <label>
+              TVA %
+              <input id="taxRate" type="number" value="20" />
+            </label>
+          </div>
+
+          <label>
+            Nom de votre entreprise
+            <input id="companyName" placeholder="Studio Nova" />
+          </label>
+          <label>
+            Email entreprise
+            <input id="companyEmail" placeholder="contact@studionova.fr" />
+          </label>
+          <label>
+            Client
+            <input id="clientName" placeholder="Nom du client" />
+          </label>
+          <label>
+            Email client
+            <input id="clientEmail" placeholder="client@email.com" />
+          </label>
+          <label>
+            Objet
+            <input id="title" placeholder="Creation site vitrine" />
+          </label>
+
+          <div class="section-title-row small">
+            <h3>Lignes</h3>
+            <button id="add-line-button" class="ghost-button" type="button">Ajouter une ligne</button>
+          </div>
+          <div id="items"></div>
+
+          <label>
+            Notes
+            <textarea id="notes" rows="4" placeholder="Merci pour votre confiance."></textarea>
+          </label>
+
+          <div class="actions-row">
+            <button id="save-button" class="primary-button" type="button">Enregistrer</button>
+            <button id="save-new-button" class="ghost-button" type="button">Enregistrer comme nouveau</button>
+            <button id="print-button" class="ghost-button" type="button">Imprimer / PDF</button>
+            <button id="convert-button" class="ghost-button" type="button">Transformer en facture</button>
+            <button id="duplicate-button" class="ghost-button" type="button">Dupliquer</button>
+          </div>
+          </section>
+
+          <section class="panel preview-panel">
+          <div class="section-title-row">
+            <h2>Apercu</h2>
+            <span id="status-badge" class="badge">Brouillon</span>
+          </div>
+
+          <article id="printable-document" class="document-sheet">
+            <div class="document-head">
+              <div>
+                <p class="eyebrow" id="preview-type">Devis</p>
+                <h2 id="preview-title">Titre du document</h2>
+                <p id="preview-number">DEV-0001</p>
+              </div>
+              <div class="right-text">
+                <strong id="preview-company-name">Votre entreprise</strong>
+                <p id="preview-company-email">email@entreprise.fr</p>
+              </div>
+            </div>
+
+            <div class="document-meta">
+              <div>
+                <h3>Client</h3>
+                <p id="preview-client-name">Nom du client</p>
+                <p id="preview-client-email">client@email.com</p>
+              </div>
+              <div class="right-text">
+                <h3>Dates</h3>
+                <p id="preview-issue-date">Emission : -</p>
+                <p id="preview-due-date">Echeance : -</p>
+              </div>
+            </div>
+
+            <table class="document-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Qte</th>
+                  <th>PU</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="preview-items"></tbody>
+            </table>
+
+            <div class="totals-box">
+              <p id="preview-subtotal">Sous-total : 0 EUR</p>
+              <p id="preview-tax">TVA : 0 EUR</p>
+              <strong id="preview-total">Total : 0 EUR</strong>
+            </div>
+
+            <div class="notes-box">
+              <h3>Notes</h3>
+              <p id="preview-notes">Aucune note.</p>
+            </div>
+          </article>
+
+          <section class="theme-gallery">
+            <div class="section-title-row">
+              <h3>Choisir un style</h3>
+              <span id="active-theme-label" class="badge">Classique</span>
+            </div>
+
+            <div class="theme-grid">
+              <article class="theme-card" data-theme-card="classic">
+                <div class="theme-preview theme-preview-classic">
+                  <div class="theme-preview-line wide"></div>
+                  <div class="theme-preview-line"></div>
+                  <div class="theme-preview-line short"></div>
+                </div>
+                <div class="theme-card-head">
+                  <strong>Classique</strong>
+                  <button class="ghost-button" data-theme-select="classic" type="button">Selectionner</button>
+                </div>
+              </article>
+
+              <article class="theme-card" data-theme-card="sunset">
+                <div class="theme-preview theme-preview-sunset">
+                  <div class="theme-preview-line wide"></div>
+                  <div class="theme-preview-line"></div>
+                  <div class="theme-preview-line short"></div>
+                </div>
+                <div class="theme-card-head">
+                  <strong>Sunset Premium</strong>
+                  <button class="ghost-button" data-theme-select="sunset" type="button">Selectionner</button>
+                </div>
+              </article>
+
+              <article class="theme-card" data-theme-card="forest">
+                <div class="theme-preview theme-preview-forest">
+                  <div class="theme-preview-line wide"></div>
+                  <div class="theme-preview-line"></div>
+                  <div class="theme-preview-line short"></div>
+                </div>
+                <div class="theme-card-head">
+                  <strong>Forest Premium</strong>
+                  <button class="ghost-button" data-theme-select="forest" type="button">Selectionner</button>
+                </div>
+              </article>
+
+              <article class="theme-card" data-theme-card="midnight">
+                <div class="theme-preview theme-preview-midnight">
+                  <div class="theme-preview-line wide"></div>
+                  <div class="theme-preview-line"></div>
+                  <div class="theme-preview-line short"></div>
+                </div>
+                <div class="theme-card-head">
+                  <strong>Midnight Premium</strong>
+                  <button class="ghost-button" data-theme-select="midnight" type="button">Selectionner</button>
+                </div>
+              </article>
+            </div>
+          </section>
+          </section>
+
+          <aside class="documents-sidebar">
+            <section class="panel history-panel history-panel-bottom">
+              <div class="section-title-row">
+                <h2>Historique</h2>
+                <div class="history-actions">
+                  <span id="history-count" class="badge">0</span>
+                  <button id="clear-history-button" class="ghost-button" type="button">Vider l'historique</button>
+                </div>
+              </div>
+
+              <div id="history-list" class="history-list"></div>
+            </section>
+          </aside>
+        </section>
+
+        <section class="documents-bottom">
+          <section class="panel history-panel">
+          <div class="section-title-row">
+            <h2>Offre</h2>
+            <span class="badge">Premium</span>
+          </div>
+
+          <div id="billing-banner" class="billing-banner">
+            <strong id="billing-title">Offre gratuite</strong>
+            <p id="billing-text">3 documents offerts puis abonnement premium.</p>
+            <div id="paypal-block" class="paypal-block">
+              <div id="paypal-button-container"></div>
+              <p id="paypal-help" class="muted"></p>
+            </div>
+          </div>
+
+          <div class="premium-grid">
+            <article class="premium-card">
+              <strong>Mini CRM clients</strong>
+              <p>Vos meilleurs clients et le chiffre d'affaires associe.</p>
+              <div id="client-list" class="client-list"></div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Suivi des paiements</strong>
+              <p>Encaisse, impayes et volume de factures.</p>
+              <div id="payment-summary" class="summary-box"></div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Relances pretes</strong>
+              <p>Copiez des relances en un clic.</p>
+              <div class="template-actions">
+                <button id="copy-reminder-1" class="ghost-button" type="button">Copier relance douce</button>
+                <button id="copy-reminder-2" class="ghost-button" type="button">Copier relance ferme</button>
+              </div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Dashboard premium</strong>
+              <p>KPI rapides pour piloter votre activite.</p>
+              <div id="premium-kpis" class="summary-box"></div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Echeances a suivre</strong>
+              <p>Reperez vite les factures a encaisser ou en retard.</p>
+              <div id="deadline-list" class="client-list"></div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Suggestions depuis l'historique</strong>
+              <p>Rechargez rapidement vos prestations les plus frequentes.</p>
+              <div id="suggestion-list" class="template-actions"></div>
+            </article>
+
+            <article class="premium-card">
+              <strong>Messages commerciaux</strong>
+              <p>Copiez des messages de suivi et de relance commerciale.</p>
+              <div class="template-actions">
+                <button id="copy-followup-quote" class="ghost-button" type="button">Copier suivi devis</button>
+                <button id="copy-thank-you" class="ghost-button" type="button">Copier message merci</button>
+              </div>
+            </article>
+          </div>
+          </section>
+        </section>
+      </main>
+
+      <main id="calculator-page" class="calculator-page hidden">
+        <section class="panel calculator-hero">
+          <div>
+            <p class="eyebrow">Outil complementaire</p>
+            <h2>Calculez votre prix ideal avant de faire le devis.</h2>
+            <p class="muted">
+              Estimez cout, marge, tarif journalier et prix conseille pour ne pas sous-vendre vos prestations.
+            </p>
+          </div>
+        </section>
+
+        <section id="calculator-lock" class="panel hidden">
+          <div class="locked-box">
+            Premium requis pour acceder au calculateur de rentabilite et de pricing.
+          </div>
+        </section>
+
+        <section class="calculator-grid">
+          <section class="panel form-panel">
+            <div class="section-title-row">
+              <h2>Calculateur pricing</h2>
+              <span class="badge">Pre-devis</span>
+            </div>
+
+            <div class="two-cols">
+              <label>
+                Nom de la prestation
+                <input id="calc-service-name" placeholder="Creation site vitrine" />
+              </label>
+              <label>
+                Jours estimes
+                <input id="calc-days" type="number" min="1" step="0.5" value="3" />
+              </label>
+            </div>
+
+            <div class="two-cols">
+              <label>
+                Tarif journalier vise
+                <input id="calc-daily-rate" type="number" min="0" step="1" value="350" />
+              </label>
+              <label>
+                Cout direct
+                <input id="calc-direct-cost" type="number" min="0" step="1" value="50" />
+              </label>
+            </div>
+
+            <div class="two-cols">
+              <label>
+                Frais annexes
+                <input id="calc-extra-cost" type="number" min="0" step="1" value="30" />
+              </label>
+              <label>
+                Marge cible %
+                <input id="calc-margin" type="number" min="0" step="1" value="30" />
+              </label>
+            </div>
+
+            <div class="two-cols">
+              <label>
+                Remise eventuelle %
+                <input id="calc-discount" type="number" min="0" step="1" value="0" />
+              </label>
+              <label>
+                TVA %
+                <input id="calc-tax" type="number" min="0" step="1" value="20" />
+              </label>
+            </div>
+
+            <div class="actions-row">
+              <button id="run-calculator" class="primary-button" type="button">Calculer</button>
+              <button id="send-to-document" class="ghost-button" type="button">Envoyer vers devis</button>
+            </div>
+          </section>
+
+          <section class="panel preview-panel">
+            <div class="section-title-row">
+              <h2>Resultat</h2>
+              <span class="badge">Decision rapide</span>
+            </div>
+
+            <div id="calculator-results" class="premium-grid"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
