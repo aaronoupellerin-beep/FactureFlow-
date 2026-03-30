@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: factureflow
+    runtime: node
+    rootDir: invoice-app
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: factureflow-data
+      mountPath: /opt/render/project/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: DATA_DIR
+        value: /opt/render/project/data
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_PLAN_ID
+        sync: false
+      - key: PAYPAL_ENV
+        value: live
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
